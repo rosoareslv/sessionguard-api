@@ -21,9 +21,12 @@ describe("Endpoints /auth", () => {
     });
 
     it("POST /auth/register - Create User with invalid body", async () => {
-      const res = await agent
-        .post("/auth/register")
-        .send({ name: "Rodrigo", username: username, password: "12345678", opr: "create" });
+      const res = await agent.post("/auth/register").send({
+        name: "Rodrigo",
+        username: username,
+        password: "12345678",
+        opr: "create",
+      });
       expect(res.status).toEqual(400);
       expect(res.type).toEqual("application/json");
       expect(res.body).toHaveProperty("message");
