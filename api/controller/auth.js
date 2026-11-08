@@ -63,6 +63,16 @@ export async function login(req, res, next) {
   }
 }
 
+export async function logout(req, res, next) {
+  try {
+    await getRedis().del(req.username);
+    res.clearCookie("refreshToken");
+    return res.status(200).json({ message: "Logged out" });
+  } catch (error) {
+    next(error);
+  }
+}
+
 export async function refresh(req, res, next) {
   try {
     let latestRefreshToken = await getRedis().get(req.username);

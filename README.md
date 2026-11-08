@@ -35,6 +35,7 @@ Products and Categories stored per user with JWT implementation.
 |--------|----------|------|-------------|
 | POST | `/auth/register` | — | Register a new user |
 | POST | `/auth/login` | — | Authenticate and return an access token (refresh token is set as an HTTP cookie) |
+| GET | `/auth/logout` | Access token | Logout application (It kills refreshToken to avoid updating the accessToken) |
 | GET | `/auth/refresh` | Refresh token (cookie) | Issue a new access token |
 | GET | `/product` | Access token | List all products of the authenticated user |
 | GET | `/product/:id` | Access token | Get a product by ID |
