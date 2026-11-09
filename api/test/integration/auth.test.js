@@ -148,7 +148,7 @@ describe("Endpoints /auth", () => {
       });
 
       it("GET /auth/refresh - Create new Access/Refresh tokens test", async () => {
-        const res = await agent.get("/auth/refresh");
+        const res = await agent.post("/auth/refresh");
         expect(res.status).toEqual(200);
         expect(res.type).toEqual("application/json");
         expect(res.body).toHaveProperty("accessToken");
@@ -162,7 +162,7 @@ describe("Endpoints /auth", () => {
       it("GET /auth/refresh - Verify if old refreshToken got invalid test", async () => {
         const agent = request.agent(app); //Needed a new agent object to set manually an old refreshToken
         const res = await agent
-          .get("/auth/refresh")
+          .post("/auth/refresh")
           .set("Cookie", `refreshToken=${refreshToken}`);
         expect(res.status).toEqual(401);
         expect(res.type).toEqual("application/json");
