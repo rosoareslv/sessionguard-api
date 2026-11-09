@@ -38,6 +38,7 @@ export function getRefreshToken(req, res, next) {
       return invalidToken(req, res);
     }
     req.username = tokenPayload.username;
+    req.sid = tokenPayload.sid;
     next();
   } catch (error) {
     if (error.name == "JsonWebTokenError") {

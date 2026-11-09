@@ -48,8 +48,8 @@ export async function login(req, res, next) {
     if (!is_user) {
       return res.status(401).json({ message: "Not authorized" });
     }
-    let { accessToken, refreshToken } = createTokens(req.body.username);
-    await getRedis().set(req.body.username, refreshToken);
+    let { accessToken, refreshToken, sessionId } = createTokens(req.body.username);
+    await getRedis().set(`${req.body.username}:${sessionId}`, refreshToken, { EX: 86400 });
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "prod",
@@ -65,7 +65,7 @@ export async function login(req, res, next) {
 
 export async function logout(req, res, next) {
   try {
-    await getRedis().del(req.username);
+    await getRedis().del(`${req.username}:${req.sid}`);
     res.clearCookie("refreshToken");
     return res.status(200).json({ message: "Logged out" });
   } catch (error) {
@@ -75,12 +75,13 @@ export async function logout(req, res, next) {
 
 export async function refresh(req, res, next) {
   try {
-    let latestRefreshToken = await getRedis().get(req.username);
+    let latestRefreshToken = await getRedis().get(`${req.username}:${req.sid}`);
     if (latestRefreshToken != req.cookies["refreshToken"]) {
+      await getRedis().del(`${req.username}:${req.sid}`);
       return res.status(401).json({ message: "Not authorized" });
     }
-    let { accessToken, refreshToken } = createTokens(req.username);
-    await getRedis().set(req.username, refreshToken);
+    let { accessToken, refreshToken, _ } = createTokens(req.username, { sid: req.sid });
+    await getRedis().set(`${req.username}:${req.sid}`, refreshToken, { EX: 86400 });
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "prod",
