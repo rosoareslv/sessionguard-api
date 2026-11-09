@@ -6,7 +6,7 @@ const router = express.Router();
 
 router.post("/register", create);
 router.post("/login", login);
-router.get("/refresh", getRefreshToken, refresh);
-router.get("/logout", getRefreshToken, logout);
+router.post("/refresh", getRefreshToken, refresh);
+router.post("/logout", getRefreshToken, logout);
 
 export default router;
