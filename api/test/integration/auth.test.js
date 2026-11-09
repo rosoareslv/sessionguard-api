@@ -123,7 +123,9 @@ describe("Endpoints /auth", () => {
       });
 
       it("Expired accessToken test", async () => {
-        let expiredAccessToken = createTokens(username, { accessTokenExpiresIn: 0 }).accessToken;
+        let expiredAccessToken = createTokens(username, {
+          accessTokenExpiresIn: 0,
+        }).accessToken;
         const res = await agent.get("/product").set({
           Authorization: "Bearer " + expiredAccessToken,
         });

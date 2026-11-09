@@ -1,19 +1,27 @@
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
 
-export function createTokens(username, { accessTokenExpiresIn = "10m", sid = null } = {}) {
+export function createTokens(
+  username,
+  { accessTokenExpiresIn = "10m", sid = null } = {},
+) {
   try {
     let accessToken = jwt.sign(
       { username: username, jti: crypto.randomUUID(), type: "access" },
       process.env.PRIVATE_KEY,
       {
         algorithm: "RS256",
-        expiresIn: accessTokenExpiresIn
+        expiresIn: accessTokenExpiresIn,
       },
     );
     let sessionId = sid ?? crypto.randomUUID();
     let refreshToken = jwt.sign(
-      { username: username, jti: crypto.randomUUID(), sid: sessionId, type: "refresh" },
+      {
+        username: username,
+        jti: crypto.randomUUID(),
+        sid: sessionId,
+        type: "refresh",
+      },
       process.env.PRIVATE_KEY,
       {
         algorithm: "RS256",
