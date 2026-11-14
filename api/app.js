@@ -2,7 +2,7 @@ import express from "express";
 import swaggerUi from "swagger-ui-express";
 import cookieParser from "cookie-parser";
 import openApi from "./docs/setup.js";
-import mongoClient from "./functions/mongodb.js"
+import mongoClient from "./functions/mongodb.js";
 
 import { getAccessToken } from "./middleware/token.js";
 import { getUserUUID } from "./middleware/user.js";

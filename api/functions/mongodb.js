@@ -6,9 +6,7 @@ mongoose.connection.on("connected", () => console.log("MongoDB OK"));
 mongoose.connection.on("disconnected", () =>
   console.log("MongoDB Disconnected"),
 );
-mongoose.connection.on("error", (err) =>
-  console.log(`MongoDB error: ${err}`),
-);
+mongoose.connection.on("error", (err) => console.log(`MongoDB error: ${err}`));
 mongoose.connection.on("close", () => console.log("MongoDB close"));
 
 const mongoClient = await mongoose.connect(CONNECTION_URL, {
@@ -18,7 +16,4 @@ const mongoClient = await mongoose.connect(CONNECTION_URL, {
   waitQueueTimeoutMS: 5000, //waiting time if the pool is fully used
 });
 
-
-
 export default mongoClient;
-
