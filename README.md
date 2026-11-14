@@ -17,17 +17,20 @@
 - :whale: Docker - Setup environments
 - :globe_with_meridians: Nginx - Reverse proxy
 - :four_leaf_clover: MongoDB - Database
-- :red_circle: Redis - Session store (refresh token whitelist per session)
+- :red_circle: Redis
+  - Store refresh tokens per user session (whitelist)
+  - Store rate limiter counters per IP
 
 #### Security
 
 - JWT signed with **RS256** (private key signs, public key verifies) and algorithm pinned on verification (prevents `alg` confusion attacks)
 - **AccessToken** (10 min, `Authorization` header) + **RefreshToken** (1 day, `httpOnly` cookie)
 - Token `type` claim: a refresh token can't be used as an access token (and vice versa)
-- **Multiple sessions per user:** each login creates a session id (`sid`); Redis key `username:sid`
+- **Multiple sessions per user:** each login creates a session id (`sid`); Redis key `refreshToken:<username>:<sid>`
 - **Refresh token rotation:** every refresh issues a new token (unique `jti`) and invalidates the previous one
 - **Reuse detection:** presenting an already-rotated refresh token revokes that session
 - **Per-device logout:** removes only the current session; other devices stay logged in
+- **Rate limiting on `/auth/login`:** 5 failed attempts per IP every 15 minutes (counters stored in Redis) to mitigate brute-force attacks
 - Sessions expire automatically in Redis (TTL aligned with the refresh token lifetime)
 - Passwords stored as hashes
 - Products and categories scoped to their owner
@@ -49,7 +52,7 @@
 | **Stateless access token** (not checked against Redis) | No extra lookup per request; keeps the JWT benefit of self-contained verification | After logout, the access token remains valid until it expires (max 10 min) |
 | **Refresh token in `httpOnly` cookie** | Not readable by JavaScript (XSS) | Requires cookie handling on the client |
 | **Session id (`sid`) + token id (`jti`)** | `sid` identifies the session (stable across refreshes), `jti` makes every token unique so rotation always produces a new token | — |
-| **Redis key `username:sid`** | Multiple concurrent sessions; logout affects only one device | "Logout from all devices" requires a key scan (not implemented yet) |
+| **Redis key `refreshToken:<username>:<sid>`** | Multiple concurrent sessions; logout affects only one device | "Logout from all devices" requires a key scan (not implemented yet) |
 | **Reuse detection revokes the session** | A rotated token being presented means two copies exist; the server can't tell which one is legitimate, so it revokes both | Concurrent refreshes (e.g. two tabs) may log the user out |
 | **TTL renewed on each refresh** | Abandoned sessions are cleaned up automatically; active users stay logged in (sliding session) | No absolute session lifetime |
 | **JWT instead of opaque sessions** | Public key allows other services to verify tokens without access to Redis | More moving parts than a plain session id |
@@ -103,7 +106,6 @@ docker compose -f docker-compose.yaml up test
 - Cookie hardening: `sameSite: "strict"` and `path: "/auth"`
 - Logout from all devices endpoint
 - Grace period for concurrent refreshes (avoid false-positive reuse detection)
-- Rate limiting (especially on `/auth/login`)
 - Set resources usage (CPU, RAM...) in compose files
 - Performance metrics
 - Structured logs
