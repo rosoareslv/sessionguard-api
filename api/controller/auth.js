@@ -6,7 +6,7 @@ import {
   registerUserValidator,
 } from "../functions/validators.js";
 import { fieldValidationError } from "../handlers/validation.js";
-import { client as redisClient } from "../functions/redis.js";
+import redisClient from "../functions/redis.js";
 
 export async function create(req, res, next) {
   try {

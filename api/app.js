@@ -2,8 +2,7 @@ import express from "express";
 import swaggerUi from "swagger-ui-express";
 import cookieParser from "cookie-parser";
 import openApi from "./docs/setup.js";
-
-import { connect as connectMongo } from "./functions/mongodb.js";
+import mongoClient from "./functions/mongodb.js"
 
 import { getAccessToken } from "./middleware/token.js";
 import { getUserUUID } from "./middleware/user.js";
@@ -27,8 +26,6 @@ const keysDir = path.resolve(
 
 process.env.PRIVATE_KEY = fs.readFileSync(path.join(keysDir, "private.pem"));
 process.env.PUBLIC_KEY = fs.readFileSync(path.join(keysDir, "public.pem"));
-
-await connectMongo();
 
 const app = express();
 app.use(cookieParser());
